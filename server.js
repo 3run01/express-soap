@@ -130,18 +130,25 @@ app.post('/soap-request', async (req, res) => {
                     });
                 }
                 
-                // Log completo da resposta
-                console.log('Envelope completo:', envelope);
-                console.log('SOAP Header:', soapHeader);
-                console.log('Resultado bruto:', result);
-
-                // Retorna o resultado como JSON
-                res.json({
+                // Extrair informações do envelope usando expressões regulares
+                const sucessoMatch = envelope.match(/<sucesso>(.*?)<\/sucesso>/);
+                const mensagemMatch = envelope.match(/<mensagem>(.*?)<\/mensagem>/);
+                const protocoloMatch = envelope.match(/<protocoloRecebimento>(.*?)<\/protocoloRecebimento>/);
+                const dataMatch = envelope.match(/<dataOperacao>(.*?)<\/dataOperacao>/);
+                
+                // Criar objeto JSON com as informações extraídas
+                const responseJson = {
                     success: true,
-                    result: result,
-                    envelope: envelope,
-                    soapHeader: soapHeader
-                });
+                    resultado: {
+                        sucesso: sucessoMatch ? sucessoMatch[1] === 'true' : false,
+                        mensagem: mensagemMatch ? mensagemMatch[1] : '',
+                        protocoloRecebimento: protocoloMatch ? protocoloMatch[1] : '',
+                        dataOperacao: dataMatch ? dataMatch[1] : '',
+                    }
+                };
+
+                // Retorna o resultado como JSON estruturado
+                res.json(responseJson);
             });
         });
     } catch (error) {
