@@ -24,65 +24,70 @@ app.post('/soap-request', async (req, res) => {
         console.log(payload);
         // Estrutura esperada pelo webservice
         const soapPayload = {
-            'entregarManifestacaoProcessual': {
+            'numeroProcesso': payload.numeroProcesso,
+            'dadosBasicos': {
                 '$attributes': {
-                    'xmlns': 'http://www.cnj.jus.br/tipos-servico-intercomunicacao-2.2.2',
-                    'xmlns:ns4': 'http://www.cnj.jus.br/intercomunicacao-2.2.2',
-                    'xmlns:ns2': 'http://www.cnj.jus.br/mni/cda'
-                },
-                'idManifestante': payload.idManifestante,
-                'senhaManifestante': payload.senhaManifestante,
-                'numeroProcesso': payload.numeroProcesso,
-                'dadosBasicos': {
-                    '$attributes': {
-                        'classeProcessual': payload.dadosBasicos?.classeProcessual,
-                        'codigoLocalidade': payload.dadosBasicos?.codigoLocalidade,
-                        'competencia': payload.dadosBasicos?.competencia,
-                        'nivelSigilo': payload.dadosBasicos?.nivelSigilo
-                    },
                     'classeProcessual': payload.dadosBasicos?.classeProcessual,
                     'codigoLocalidade': payload.dadosBasicos?.codigoLocalidade,
                     'competencia': payload.dadosBasicos?.competencia,
-                    'polo': payload.dadosBasicos?.polo?.map(polo => ({
-                        'polo': polo.polo,
-                        'parte': polo.parte?.map(parte => ({
-                            'pessoa': {
-                                'nome': parte.pessoa?.nome || '',
-                                'numeroDocumentoPrincipal': parte.pessoa?.numeroDocumentoPrincipal || '',
-                                'tipoPessoa': parte.pessoa?.tipoPessoa || '',
-                                'documento': {
-                                    'codigoDocumento': parte.pessoa?.documento?.codigoDocumento || '',
-                                    'emissorDocumento': parte.pessoa?.documento?.emissorDocumento || '',
-                                    'tipoDocumento': parte.pessoa?.documento?.tipoDocumento || '',
-                                    'nome': parte.pessoa?.documento?.nome || ''
-                                },
-                                'endereco': {
-                                    'cep': parte.pessoa?.endereco?.cep || '',
-                                    'logradouro': parte.pessoa?.endereco?.logradouro || '',
-                                    'numero': parte.pessoa?.endereco?.numero || '',
-                                    'bairro': parte.pessoa?.endereco?.bairro || '',
-                                    'municipio': parte.pessoa?.endereco?.municipio || '',
-                                    'estado': parte.pessoa?.endereco?.estado || '',
-                                    'pais': parte.pessoa?.endereco?.pais || ''
-                                }
-                            }
-                        }))
-                    })),
-                    'assunto': {
-                        'codigoNacional': payload.dadosBasicos?.assunto?.codigoNacional
+                    'nivelSigilo': payload.dadosBasicos?.nivelSigilo
+                },
+                'polo': payload.dadosBasicos?.polo?.map(polo => ({
+                    '$attributes': {
+                        'polo': polo.polo
                     },
-                    'prioridade': payload.dadosBasicos?.prioridade,
-                    'valorCausa': payload.dadosBasicos?.valorCausa,
-                    'orgaoJulgador': payload.dadosBasicos?.orgaoJulgador || {}
+                    'parte': polo.parte?.map(parte => ({
+                        'pessoa': {
+                            '$attributes': {
+                                'nome': parte.pessoa?.nome,
+                                'numeroDocumentoPrincipal': parte.pessoa?.numeroDocumentoPrincipal,
+                                'tipoPessoa': parte.pessoa?.tipoPessoa
+                            },
+                            ...(parte.pessoa?.documento && {
+                                'documento': {
+                                    '$attributes': {
+                                        'codigoDocumento': parte.pessoa.documento.codigoDocumento,
+                                        'emissorDocumento': parte.pessoa.documento.emissorDocumento,
+                                        'tipoDocumento': parte.pessoa.documento.tipoDocumento,
+                                        'nome': parte.pessoa.documento.nome
+                                    }
+                                }
+                            }),
+                            ...(parte.pessoa?.endereco && {
+                                'endereco': {
+                                    '$attributes': {
+                                        'cep': parte.pessoa.endereco.cep
+                                    },
+                                    'logradouro': parte.pessoa.endereco.logradouro,
+                                    'numero': parte.pessoa.endereco.numero,
+                                    'bairro': parte.pessoa.endereco.bairro,
+                                    'estado': parte.pessoa.endereco.estado,
+                                    'pais': parte.pessoa.endereco.pais
+                                }
+                            })
+                        }
+                    }))
+                })),
+                ...(payload.dadosBasicos?.assunto && {
+                    'assunto': {
+                        'codigoNacional': payload.dadosBasicos.assunto.codigoNacional
+                    }
+                })
+            },
+            'senhaManifestante': payload.senhaManifestante,
+            'documento': payload.documento?.map(doc => ({
+                '$attributes': {
+                    ...(doc.tipoDocumento && { 'tipoDocumento': doc.tipoDocumento }),
+                    ...(doc.dataHora && { 'dataHora': doc.dataHora }),
+                    'mimetype': doc.mimetype || 'application/pdf',
+                    ...(doc.nivelSigilo && { 'nivelSigilo': doc.nivelSigilo }),
+                    ...(doc.descricao && { 'descricao': doc.descricao })
                 },
-                'documento': {
-                    'tipoDocumento': payload.documento?.tipoDocumento,
-                    'mimetype': payload.documento?.mimetype || 'application/pdf',
-                    'conteudo': payload.documento?.conteudo
-                },
-                'dataEnvio': new Date().toISOString(),
-                'parametros': payload.parametros || []
-            }
+                'conteudo': doc.conteudo
+            })),
+            'idManifestante': payload.idManifestante,
+            'dataEnvio': payload.dataEnvio,
+            'parametros': payload.parametros || []
         };
 
 
@@ -117,7 +122,12 @@ app.post('/soap-request', async (req, res) => {
             client.entregarManifestacaoProcessual(soapPayload, function(err, result, envelope, soapHeader) {
                 if (err) {
                     console.error('Erro na chamada SOAP:', err);
-                    return res.status(500).json({ error: 'Erro na chamada SOAP', details: err.message });
+                    return res.status(500).json({ 
+                        error: 'Erro na chamada SOAP', 
+                        faultcode: err.root?.Envelope?.Body?.Fault?.faultcode || err.code,
+                        faultstring: err.root?.Envelope?.Body?.Fault?.faultstring || err.message,
+                        details: err.root?.Envelope?.Body?.Fault?.detail || err.detail
+                    });
                 }
                 
                 // Log completo da resposta
@@ -125,18 +135,10 @@ app.post('/soap-request', async (req, res) => {
                 console.log('SOAP Header:', soapHeader);
                 console.log('Resultado bruto:', result);
 
-                // Se não houver resultado, retorna erro
-                if (!result) {
-                    return res.status(500).json({ 
-                        error: 'Resposta vazia do serviço',
-                        envelope: envelope
-                    });
-                }
-
-                // Retorna o resultado com informações adicionais
+                // Retorna o resultado como JSON
                 res.json({
                     success: true,
-                    data: result,
+                    result: result,
                     envelope: envelope,
                     soapHeader: soapHeader
                 });
