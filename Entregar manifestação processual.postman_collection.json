@@ -1,0 +1,38 @@
+{
+	"info": {
+		"_postman_id": "c174acbb-4bbb-4860-9f47-0c73aef34cf3",
+		"name": "Entregar manifestação processual",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33246375"
+	},
+	"item": [
+		{
+			"name": "entregarManifestacaoProcessual",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"idManifestante\": \"01396356290\",\r\n    \"senhaManifestante\": \"123@Senha\",\r\n    \"dadosBasicos\": {\r\n        \"classeProcessual\": \"166\",\r\n        \"codigoLocalidade\": \"1\",\r\n        \"competencia\": \"18\",\r\n        \"prioridade\": [\r\n            \"Juízo 100% Digital\"\r\n        ],\r\n        \"valorCausa\": \"200000.00\",\r\n        \"assistenciaJudiciaria\": \"true\",\r\n        \"nivelSigilo\": \"0\",\r\n        \"orgaoJulgador\": \"\",\r\n        \"polo\": [\r\n            {\r\n                \"polo\": \"AT\",\r\n                \"parte\": [\r\n                    {\r\n                        \"pessoa\": {\r\n                            \"nome\": \"MINISTÉRIO PÚBLICO DO ESTADO DO AMAPÁ\",\r\n                            \"numeroDocumentoPrincipal\": \"34869354000199\",\r\n                            \"tipoPessoa\": \"juridica\",\r\n                            \"documento\": {\r\n                                \"codigoDocumento\": \"34869354000199\",\r\n                                \"emissorDocumento\": \"SSP\",\r\n                                \"tipoDocumento\": \"CMF\",\r\n                                \"nome\": \"MINISTÉRIO PÚBLICO DO ESTADO DO AMAPÁ\"\r\n                            },\r\n                            \"endereco\": {\r\n                                \"cep\": \"68903-883\",\r\n                                \"logradouro\": \"Rua do Araxá\",\r\n                                \"numero\": \"SN\",\r\n                                \"bairro\": \"Araxá\",\r\n                                \"municipio\": \"Macapá\",\r\n                                \"estado\": \"AP\",\r\n                                \"pais\": \"BR\"\r\n                            }\r\n                        }\r\n                    }\r\n                ]\r\n            },\r\n            {\r\n                \"polo\": \"PA\",\r\n                \"parte\": [\r\n                    {\r\n                        \"pessoa\": {\r\n                            \"nome\": \"MUNICÍPIO DE MACAPÁ\",\r\n                            \"numeroDocumentoPrincipal\": \"05995766000177\",\r\n                            \"tipoPessoa\": \"juridica\",\r\n                            \"documento\": {\r\n                                \"codigoDocumento\": \"05995766000177\",\r\n                                \"emissorDocumento\": \"SSP\",\r\n                                \"tipoDocumento\": \"CMF\",\r\n                                \"nome\": \"MUNICÍPIO DE MACAPÁ\"\r\n                            },\r\n                            \"endereco\": {\r\n                                \"cep\": \"68900-070\",\r\n                                \"logradouro\": \"Avenida Presidente Getúlio Vargas\",\r\n                                \"numero\": \"1158\",\r\n                                \"bairro\": \"Central\",\r\n                                \"municipio\": \"Macapá\",\r\n                                \"estado\": \"AP\",\r\n                                \"pais\": \"BR\"\r\n                            }\r\n                        }\r\n                    }\r\n                ]\r\n            }\r\n        ],\r\n        \"assunto\": {\r\n            \"codigoNacional\": \"6062\"\r\n        }\r\n    },\r\n    \"documento\": [\r\n        {\r\n            \"idDocumento\": 1384,\r\n            \"idDocumentoVinculado\": null,\r\n            \"descricao\": \"Anexo #1384\",\r\n            \"mimetype\": \"application/pdf\",\r\n            \"conteudo\": \"JVBERi0xLjcKJeLjz9MKNyAwIG9iago8PCAvVHlwZSAvUGFnZSAvUGFyZW50...\",\r\n            \"dataHora\": \"20250131085559\",\r\n            \"nivelSigilo\": \"0\",\r\n            \"tipoDocumento\": 58,\r\n            \"any\": \"\"\r\n        }\r\n    ],\r\n    \"dataEnvio\": \"20250131065559\",\r\n    \"parametros\": []\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/soap-request",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"soap-request"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

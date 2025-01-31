@@ -20,68 +20,68 @@ app.post('/soap-request', async (req, res) => {
                 error: 'Payload inválido. É necessário enviar um objeto JSON.' 
             });
         }
+
+        console.log(payload);
         // Estrutura esperada pelo webservice
         const soapPayload = {
-            'ns3:entregarManifestacaoProcessual': {
+            'entregarManifestacaoProcessual': {
                 '$attributes': {
-                    'xmlns:ns3': 'http://www.cnj.jus.br/tipos-servico-intercomunicacao-2.2.2',
+                    'xmlns': 'http://www.cnj.jus.br/tipos-servico-intercomunicacao-2.2.2',
                     'xmlns:ns4': 'http://www.cnj.jus.br/intercomunicacao-2.2.2',
                     'xmlns:ns2': 'http://www.cnj.jus.br/mni/cda'
                 },
-                'idManifestante': '01396356290',
-                'senhaManifestante': '#mp@2023',
+                'idManifestante': payload.idManifestante,
+                'senhaManifestante': payload.senhaManifestante,
                 'numeroProcesso': payload.numeroProcesso,
-                'ns3:dadosBasicos': {
+                'dadosBasicos': {
                     '$attributes': {
-                        'classeProcessual': payload.dadosBasicos.classeProcessual,
-                        'codigoLocalidade': payload.dadosBasicos.codigoLocalidade,
-                        'competencia': payload.dadosBasicos.competencia,
-                        'nivelSigilo': payload.dadosBasicos.nivelSigilo
+                        'classeProcessual': payload.dadosBasicos?.classeProcessual,
+                        'codigoLocalidade': payload.dadosBasicos?.codigoLocalidade,
+                        'competencia': payload.dadosBasicos?.competencia,
+                        'nivelSigilo': payload.dadosBasicos?.nivelSigilo
                     },
-                    'classeProcessual': payload.dadosBasicos.classeProcessual,
-                    'codigoLocalidade': payload.dadosBasicos.codigoLocalidade,
-                    'competencia': payload.dadosBasicos.competencia,
-                    'nivelSigilo': payload.dadosBasicos.nivelSigilo,
-                    'ns4:polo': payload.dadosBasicos.polo.map(p => ({
-                        'polo': p.polo,
-                        'ns4:parte': {
-                            'ns4:pessoa': {
-                                'nome': p.parte.pessoa.nome,
-                                'numeroDocumentoPrincipal': p.parte.pessoa.numeroDocumentoPrincipal,
-                                'tipoPessoa': p.parte.pessoa.tipoPessoa,
-                                'ns4:documento': {
-                                    'codigoDocumento': p.parte.pessoa.documento.codigoDocumento,
-                                    'emissorDocumento': p.parte.pessoa.documento.emissorDocumento,
-                                    'tipoDocumento': p.parte.pessoa.documento.tipoDocumento,
-                                    'nome': p.parte.pessoa.documento.nome
+                    'classeProcessual': payload.dadosBasicos?.classeProcessual,
+                    'codigoLocalidade': payload.dadosBasicos?.codigoLocalidade,
+                    'competencia': payload.dadosBasicos?.competencia,
+                    'polo': payload.dadosBasicos?.polo?.map(polo => ({
+                        'polo': polo.polo,
+                        'parte': polo.parte?.map(parte => ({
+                            'pessoa': {
+                                'nome': parte.pessoa?.nome || '',
+                                'numeroDocumentoPrincipal': parte.pessoa?.numeroDocumentoPrincipal || '',
+                                'tipoPessoa': parte.pessoa?.tipoPessoa || '',
+                                'documento': {
+                                    'codigoDocumento': parte.pessoa?.documento?.codigoDocumento || '',
+                                    'emissorDocumento': parte.pessoa?.documento?.emissorDocumento || '',
+                                    'tipoDocumento': parte.pessoa?.documento?.tipoDocumento || '',
+                                    'nome': parte.pessoa?.documento?.nome || ''
                                 },
-                                'ns4:endereco': {
-                                    'cep': p.parte.pessoa.endereco.cep,
-                                    'ns4:logradouro': p.parte.pessoa.endereco.logradouro,
-                                    'ns4:numero': p.parte.pessoa.endereco.numero,
-                                    'ns4:complemento': p.parte.pessoa.endereco.complemento || '',
-                                    'ns4:bairro': p.parte.pessoa.endereco.bairro,
-                                    'ns4:cidade': p.parte.pessoa.endereco.cidade,
-                                    'ns4:estado': p.parte.pessoa.endereco.estado,
-                                    'ns4:pais': p.parte.pessoa.endereco.pais
+                                'endereco': {
+                                    'cep': parte.pessoa?.endereco?.cep || '',
+                                    'logradouro': parte.pessoa?.endereco?.logradouro || '',
+                                    'numero': parte.pessoa?.endereco?.numero || '',
+                                    'bairro': parte.pessoa?.endereco?.bairro || '',
+                                    'municipio': parte.pessoa?.endereco?.municipio || '',
+                                    'estado': parte.pessoa?.endereco?.estado || '',
+                                    'pais': parte.pessoa?.endereco?.pais || ''
                                 }
                             }
-                        }
+                        }))
                     })),
-                    'ns4:assunto': {
-                        'ns4:codigoNacional': payload.dadosBasicos.assunto.codigoNacional
+                    'assunto': {
+                        'codigoNacional': payload.dadosBasicos?.assunto?.codigoNacional
                     },
-                    'ns4:prioridade': payload.dadosBasicos.prioridade,
-                    'ns4:valorCausa': payload.dadosBasicos.valorCausa,
-                    'ns4:orgaoJulgador': payload.dadosBasicos.orgaoJulgador || {}
+                    'prioridade': payload.dadosBasicos?.prioridade,
+                    'valorCausa': payload.dadosBasicos?.valorCausa,
+                    'orgaoJulgador': payload.dadosBasicos?.orgaoJulgador || {}
                 },
-                'ns3:documento': {
-                    'tipoDocumento': payload.documento.tipoDocumento,
-                    'mimetype': payload.documento.mimetype || 'application/pdf',
-                    'ns4:conteudo': payload.documento.conteudo
+                'documento': {
+                    'tipoDocumento': payload.documento?.tipoDocumento,
+                    'mimetype': payload.documento?.mimetype || 'application/pdf',
+                    'conteudo': payload.documento?.conteudo
                 },
-                'ns3:dataEnvio': new Date().toISOString(),
-                'ns3:parametros': payload.parametros || []
+                'dataEnvio': new Date().toISOString(),
+                'parametros': payload.parametros || []
             }
         };
 
@@ -98,10 +98,11 @@ app.post('/soap-request', async (req, res) => {
                 xmlKey: '$xml'
             },
             wsdl_headers: {
-                'SOAPAction': 'http://www.cnj.jus.br/servico-intercomunicacao-2.2.2/entregarManifestacaoProcessual',
+                'SOAPAction': '',
                 'Content-Type': 'text/xml;charset=UTF-8'
             },
-            forceSoap12Headers: false
+            forceSoap12Headers: false,
+            namespaceArrayElements: false
         };
 
         soap.createClient(url, options, function(err, client) {
