@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: soap_mni
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - SOAP_URL=https://hml.pje.stg.apps.tjap.jus.br/1g/intercomunicacao?wsdl
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped 
