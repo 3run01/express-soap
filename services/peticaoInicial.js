@@ -45,7 +45,6 @@ class PeticaoInicialService {
     }
 
     buildPartes(partes) {
-        // Se partes for um objeto único, coloque-o em um array
         const partesArray = Array.isArray(partes) ? partes : [partes];
         
         return partesArray.map(parte => {
@@ -66,7 +65,7 @@ class PeticaoInicialService {
                         logradouro: pessoa.endereco.logradouro,
                         numero: pessoa.endereco.numero,
                         bairro: pessoa.endereco.bairro,
-                        municipio: pessoa.endereco.municipio,
+                        cidade: pessoa.endereco.municipio,
                         estado: pessoa.endereco.estado,
                         pais: pessoa.endereco.pais
                     }
